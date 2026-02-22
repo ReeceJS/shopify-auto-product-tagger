@@ -1,0 +1,209 @@
+# Auto Product Tagger – Home Page (MVP)
+
+## Purpose
+Build a Home page for the Auto Product Tagger Shopify embedded app that acts as an operational dashboard and onboarding helper.
+
+The page must quickly answer:
+- Is automation active?
+- What should I do next?
+- How do I create and manage rules?
+
+Recent Activity is **out of scope for MVP** and must NOT be implemented yet.
+
+---
+
+## Route
+/
+
+---
+
+## Tech Constraints
+- React Router
+- Polaris UI components
+- Data fetched from backend API
+- No direct Shopify Admin API calls from frontend
+
+---
+
+## Home Page Sections (Top → Bottom)
+
+---
+
+## 1. Page Header
+
+Title:
+Auto Product Tagger
+
+Primary Action Button:
+Create Rule  
+Links to: /rules/new
+
+Secondary Action Button:
+View Rules  
+Links to: /rules
+
+Use Polaris Page component with primaryAction and secondaryActions.
+
+---
+
+## 2. App Status Card
+
+Purpose:
+Give immediate confidence that the app is functioning.
+
+Display:
+
+- Automation Status  
+  - Active if at least one enabled rule exists  
+  - Inactive if zero enabled rules
+
+- Active Rules Count  
+  Example: 12 / 50 active rules
+
+- Webhook Status  
+  - Connected  
+  - Not Connected
+
+- Last Execution Timestamp  
+  - Most recent product webhook processing time  
+  - If unavailable, show “No executions yet”
+
+Layout:
+Single Polaris Card with stacked rows.
+
+Status should be visually represented using Polaris Badge:
+- Success = Active / Connected
+- Critical = Inactive / Not Connected
+
+Data Source:
+GET /api/home/status
+
+Expected Response Shape:
+{
+  automationActive: boolean,
+  activeRuleCount: number,
+  ruleLimit: number,
+  webhookConnected: boolean,
+  lastExecutionAt: string | null
+}
+
+---
+
+## 3. Quick Actions Card
+
+Purpose:
+Provide fast access to primary workflows.
+
+Buttons:
+
+- Create Rule → /rules/new
+- View Rules → /rules
+- Run Rules on All Products → triggers bulk run
+
+Bulk Run Button Behaviour:
+- Calls POST /api/runs/bulk
+- Shows loading state while request is in progress
+- On success, show toast:
+  “Bulk run started”
+
+Disable button if a bulk run is already in progress.
+
+---
+
+## 4. Getting Started (Conditional)
+
+Only display if total rules count = 0.
+
+Checklist items:
+
+1. Create your first rule  
+   Link → /rules/new
+
+2. Test your rule on a product  
+   Link → /rules/new
+
+3. Run rules on your entire catalogue  
+   Triggers bulk run
+
+Use Polaris Card + List.
+
+Once at least one rule exists, this entire section must be hidden.
+
+---
+
+## 5. Active Rules Snapshot
+
+Purpose:
+Show a lightweight overview of existing rules.
+
+Display up to 5 rules.
+
+Columns:
+- Rule Name
+- Status (Enabled / Disabled)
+- Conditions Count
+- Tags Added Count
+
+Row click navigates to:
+ /rules/:id
+
+Footer link:
+View all rules → /rules
+
+Use Polaris IndexTable.
+
+Data Source:
+GET /api/rules?limit=5
+
+---
+
+## Explicitly Out of Scope (MVP)
+
+- Recent activity feed
+- Logs viewer
+- Charts or analytics
+- Editing rules directly from Home page
+- Scheduling
+
+---
+
+## UX Principles
+
+- No scrolling required to reach Quick Actions.
+- Clear empty states.
+- No technical terminology (avoid “webhook”, prefer “connection status”).
+
+Replace:
+Webhook Connected → Connection Status
+
+---
+
+## Error States
+
+If /api/home/status fails:
+Show Polaris Banner (critical):
+“Unable to load app status. Please refresh or contact support.”
+
+If bulk run fails to start:
+Show toast:
+“Failed to start bulk run. Please try again.”
+
+---
+
+## Acceptance Criteria
+
+- User can immediately see whether automation is active.
+- User can create a rule in one click.
+- User can trigger a bulk run.
+- New users see onboarding checklist.
+- Existing users see snapshot of active rules.
+
+---
+
+## Non-Functional
+
+- Page loads in under 2 seconds.
+- All actions show loading states.
+- No console errors.
+
+---

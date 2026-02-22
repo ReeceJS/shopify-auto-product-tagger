@@ -1,4 +1,4 @@
-import { Form, useLoaderData, useNavigate, useSubmit } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import { authenticate } from "../shopify.server";
 import { getHomePageData } from "../lib/home.server";
 import { enqueueBulkRun } from "../lib/bulk-run.server";
@@ -42,7 +42,6 @@ export const action = async ({ request }) => {
 export default function Index() {
   const { homePageData, error } = useLoaderData();
   const navigate = useNavigate();
-  const submit = useSubmit();
 
   if (error) {
     return (
@@ -69,7 +68,6 @@ export default function Index() {
   const { status, recentRules, hasRules } = homePageData;
 
   const statusTone = (isActive) => (isActive ? "success" : "critical");
-  const connectionTone = status.webhookConnected ? "success" : "warning";
 
   return (
     <s-page heading="Auto Product Tagger">
@@ -78,78 +76,62 @@ export default function Index() {
         type="button"
         onClick={() => navigate("/app/rules/new")}
       >
-        Create Rule
+        Create rule
       </s-button>
       <s-button
         slot="secondary-actions"
         type="button"
         onClick={() => navigate("/app/rules")}
       >
-        View Rules
+        View rules
       </s-button>
 
-      {/* App Status Card */}
-      <s-section heading="Status Overview" padding="base">
-        <s-box padding="base" borderWidth="base" borderRadius="base">
-          <s-stack direction="block" gap="base">
-            <s-stack direction="inline" gap="base" alignItems="center">
-              <s-badge tone={statusTone(status.automationActive)}>
-                {status.automationActive ? "Active" : "Inactive"}
-              </s-badge>
-              <s-paragraph>
-                <strong>Automation:</strong> {status.automationActive ? "Enabled" : "Disabled"}
-              </s-paragraph>
+      {/* Status Overview & Quick Actions - Side by side */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+        {/* App Status Card */}
+        <div>
+          <s-heading>Status overview</s-heading>
+          <s-box padding="base" borderWidth="base" borderRadius="base">
+            <s-stack direction="block" gap="base">
+              <s-stack direction="inline" gap="base" alignItems="center">
+                <s-badge tone={statusTone(status.automationActive)}>
+                  {status.automationActive ? "Active" : "Inactive"}
+                </s-badge>
+                <s-paragraph>
+                  <strong>Automation:</strong> {status.automationActive ? "Enabled" : "Disabled"}
+                </s-paragraph>
+              </s-stack>
+
+              <s-stack direction="inline" gap="base" alignItems="center">
+                <s-badge>
+                  {status.activeRuleCount} / {status.ruleLimit}
+                </s-badge>
+                <s-paragraph>
+                  <strong>Active rules:</strong> {status.activeRuleCount} of {status.ruleLimit} rules in use
+                </s-paragraph>
+              </s-stack>
             </s-stack>
+          </s-box>
+        </div>
 
-            <s-stack direction="inline" gap="base" alignItems="center">
-              <s-badge>
-                {status.activeRuleCount} / {status.ruleLimit}
-              </s-badge>
-              <s-paragraph>
-                <strong>Active Rules:</strong> {status.activeRuleCount} of {status.ruleLimit} rules in use
-              </s-paragraph>
-            </s-stack>
-
-            <s-stack direction="inline" gap="base" alignItems="center">
-              <s-badge tone={connectionTone}>
-                {status.webhookConnected ? "Connected" : "Disconnected"}
-              </s-badge>
-              <s-paragraph>
-                <strong>Connection Status:</strong> Webhooks are {status.webhookConnected ? "active" : "inactive"}
-              </s-paragraph>
-            </s-stack>
-
-            <s-paragraph>
-              <strong>Last Activity:</strong>{" "}
-              {status.lastExecutionAt
-                ? new Date(status.lastExecutionAt).toLocaleString()
-                : "No executions yet"}
-            </s-paragraph>
-          </s-stack>
-        </s-box>
-      </s-section>
-
-      {/* Quick Actions Card */}
-      <s-section heading="Quick Actions" padding="base">
-        <s-box padding="base" borderWidth="base" borderRadius="base" background="subdued">
-          <s-stack direction="inline" gap="base" wrap="wrap" alignItems="center">
-            <s-button type="button" onClick={() => navigate("/app/rules/new")}>
-              Create Rule
-            </s-button>
-            <s-button type="button" onClick={() => navigate("/app/rules")}>
-              Manage Rules
-            </s-button>
-            <Form method="post">
-              <s-button type="submit" name="intent" value="run-bulk">
-                Run on All Products
+        {/* Quick Actions Card */}
+        <div>
+          <s-heading>Quick actions</s-heading>
+          <s-box padding="base" borderWidth="base" borderRadius="base" background="subdued">
+            <s-stack direction="block" gap="base">
+              <s-button type="button" onClick={() => navigate("/app/rules/new")}>
+                Create rule
               </s-button>
-            </Form>
-            <s-button type="button" onClick={() => navigate("/app/runs")}>
-              View Bulk Runs
-            </s-button>
-          </s-stack>
-        </s-box>
-      </s-section>
+              <s-button type="button" onClick={() => navigate("/app/rules")}>
+                Manage rules
+              </s-button>
+              <s-button type="button" onClick={() => navigate("/app/runs")}>
+                View bulk runs
+              </s-button>
+            </s-stack>
+          </s-box>
+        </div>
+      </div>
 
       {/* Getting Started - Conditional */}
       {!hasRules && (
@@ -167,13 +149,13 @@ export default function Index() {
                     <s-badge>1</s-badge>
                     <s-stack direction="block" gap="small">
                       <s-paragraph>
-                        <strong>Create Your First Rule</strong>
+                        <strong>Create your first rule</strong>
                       </s-paragraph>
                       <s-paragraph>
                         Define conditions (vendor, price, product type, etc.) and the tags to apply.
                       </s-paragraph>
                       <s-button type="button" onClick={() => navigate("/app/rules/new")} variant="secondary">
-                        Create Rule →
+                        Create rule →
                       </s-button>
                     </s-stack>
                   </s-stack>
@@ -184,7 +166,7 @@ export default function Index() {
                     <s-badge>2</s-badge>
                     <s-stack direction="block" gap="small">
                       <s-paragraph>
-                        <strong>Test Your Rule</strong>
+                        <strong>Test your rule</strong>
                       </s-paragraph>
                       <s-paragraph>
                         Edit a product in Shopify Admin. Tags will update automatically when the product matches your rule conditions.
@@ -198,16 +180,14 @@ export default function Index() {
                     <s-badge>3</s-badge>
                     <s-stack direction="block" gap="small">
                       <s-paragraph>
-                        <strong>Run on All Products</strong>
+                        <strong>Run on all products</strong>
                       </s-paragraph>
                       <s-paragraph>
                         Apply your rules to your entire catalog with a bulk run.
                       </s-paragraph>
-                      <Form method="post">
-                        <s-button type="submit" name="intent" value="run-bulk" variant="secondary">
-                          Start Bulk Run →
-                        </s-button>
-                      </Form>
+                      <s-button type="button" onClick={() => navigate("/app/runs")} variant="secondary">
+                        View bulk runs →
+                      </s-button>
                     </s-stack>
                   </s-stack>
                 </s-box>
@@ -254,7 +234,7 @@ export default function Index() {
               </s-table>
 
               <s-button type="button" onClick={() => navigate("/app/rules")}>
-                View All Rules →
+                View all rules →
               </s-button>
             </s-stack>
           </s-box>
