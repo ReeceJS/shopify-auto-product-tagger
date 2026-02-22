@@ -60,10 +60,6 @@ const OPERATOR_OPTIONS_BY_FIELD = {
     { value: "equals", label: "equals" },
   ],
 };
-    { value: "less_than", label: "less than" },
-    { value: "equals", label: "equals" },
-  ],
-};
 
 const createCondition = () => ({
   field: "vendor",
