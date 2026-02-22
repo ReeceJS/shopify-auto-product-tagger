@@ -1,8 +1,6 @@
 import { useLoaderData, useNavigate } from "react-router";
 import { authenticate } from "../shopify.server";
 import { getHomePageData } from "../lib/home.server";
-import { enqueueBulkRun } from "../lib/bulk-run.server";
-import { triggerBulkRunProcessor } from "../lib/bulk-run-worker.server";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
@@ -16,27 +14,6 @@ export const loader = async ({ request }) => {
       error: error instanceof Error ? error.message : "Failed to load home page data",
     };
   }
-};
-
-export const action = async ({ request }) => {
-  const { session } = await authenticate.admin(request);
-  const formData = await request.formData();
-  const intent = String(formData.get("intent") || "");
-
-  if (intent === "run-bulk") {
-    try {
-      await enqueueBulkRun(session.shop);
-      triggerBulkRunProcessor();
-      return { success: true, message: "Bulk run started" };
-    } catch (error) {
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : "Failed to start bulk run",
-      };
-    }
-  }
-
-  return null;
 };
 
 export default function Index() {
@@ -88,9 +65,8 @@ export default function Index() {
 
       {/* Status Overview & Quick Actions - Side by side */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
-        {/* App Status Card */}
-        <div>
-          <s-heading>Status overview</s-heading>
+        {/* Status Overview Section */}
+        <s-section heading="Status overview" padding="base">
           <s-box padding="base" borderWidth="base" borderRadius="base">
             <s-stack direction="block" gap="base">
               <s-stack direction="inline" gap="base" alignItems="center">
@@ -112,25 +88,36 @@ export default function Index() {
               </s-stack>
             </s-stack>
           </s-box>
-        </div>
+        </s-section>
 
-        {/* Quick Actions Card */}
-        <div>
-          <s-heading>Quick actions</s-heading>
+        {/* Quick Actions Section */}
+        <s-section heading="Quick actions" padding="base">
           <s-box padding="base" borderWidth="base" borderRadius="base" background="subdued">
             <s-stack direction="block" gap="base">
-              <s-button type="button" onClick={() => navigate("/app/rules/new")}>
+              <s-button 
+                type="button" 
+                onClick={() => navigate("/app/rules/new")}
+                variant="primary"
+              >
                 Create rule
               </s-button>
-              <s-button type="button" onClick={() => navigate("/app/rules")}>
+              <s-button 
+                type="button" 
+                onClick={() => navigate("/app/rules")}
+                variant="secondary"
+              >
                 Manage rules
               </s-button>
-              <s-button type="button" onClick={() => navigate("/app/runs")}>
+              <s-button 
+                type="button" 
+                onClick={() => navigate("/app/runs")}
+                variant="secondary"
+              >
                 View bulk runs
               </s-button>
             </s-stack>
           </s-box>
-        </div>
+        </s-section>
       </div>
 
       {/* Getting Started - Conditional */}
@@ -234,7 +221,7 @@ export default function Index() {
               </s-table>
 
               <s-button type="button" onClick={() => navigate("/app/rules")}>
-                View all rules →
+                View all rules
               </s-button>
             </s-stack>
           </s-box>
