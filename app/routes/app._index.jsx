@@ -63,170 +63,137 @@ export default function Index() {
         View rules
       </s-button>
 
-      {/* Status Overview & Quick Actions - Side by side */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
-        {/* Status Overview Section */}
-        <s-section heading="Overview" padding="base">
-          <s-box padding="base" borderWidth="base" borderRadius="base">
-            <s-stack direction="block" gap="base">
-              <s-stack direction="inline" gap="base" alignItems="center">
-                <s-badge tone={statusTone(status.automationActive)}>
-                  {status.automationActive ? "Active" : "Inactive"}
-                </s-badge>
-                <s-paragraph>
-                  <strong>Automation:</strong> {status.automationActive ? "Enabled" : "Disabled"}
-                </s-paragraph>
-              </s-stack>
-
-              <s-stack direction="inline" gap="base" alignItems="center">
-                <s-badge>
-                  {status.activeRuleCount} / {status.ruleLimit}
-                </s-badge>
-                <s-paragraph>
-                  <strong>Active rules:</strong> {status.activeRuleCount} of {status.ruleLimit} rules in use
-                </s-paragraph>
-              </s-stack>
-            </s-stack>
-          </s-box>
-        </s-section>
-
-        {/* Quick Actions Section */}
-        <s-section heading="Quick actions" padding="base">
-          <s-box padding="base" borderWidth="base" borderRadius="base" background="subdued">
-            <s-stack direction="inline" gap="base" wrap>
-              <s-button 
-                type="button" 
-                onClick={() => navigate("/app/rules/new")}
-                variant="primary"
-              >
-                Create rule
-              </s-button>
-              <s-button 
-                type="button" 
-                onClick={() => navigate("/app/rules")}
-                variant="secondary"
-              >
-                Manage rules
-              </s-button>
-              <s-button 
-                type="button" 
-                onClick={() => navigate("/app/runs")}
-                variant="secondary"
-              >
-                View bulk runs
-              </s-button>
-            </s-stack>
-          </s-box>
-        </s-section>
-      </div>
-
-      {/* Getting Started - Conditional */}
-      {!hasRules && (
-        <s-section heading="Getting Started" padding="base">
-          <s-box padding="base" borderWidth="base" borderRadius="base" background="subdued">
-            <s-stack direction="block" gap="base">
-              <s-heading>Welcome to Auto Product Tagger</s-heading>
-              <s-paragraph>
-                Follow these steps to get started with automated product tagging.
-              </s-paragraph>
-
+      <s-stack direction="block" gap="base">
+        {/* Welcome / Onboarding - Conditional */}
+        {(!hasRules || !status.automationActive) && (
+          <s-section padding="base">
+            <s-box padding="base" borderWidth="base" borderRadius="base">
               <s-stack direction="block" gap="base">
-                <s-box padding="small" borderWidth="base" borderRadius="base">
-                  <s-stack direction="inline" gap="base" alignItems="start">
-                    <s-badge>1</s-badge>
-                    <s-stack direction="block" gap="small">
-                      <s-paragraph>
-                        <strong>Create your first rule</strong>
-                      </s-paragraph>
-                      <s-paragraph>
-                        Define conditions (vendor, price, product type, etc.) and the tags to apply.
-                      </s-paragraph>
-                      <s-button type="button" onClick={() => navigate("/app/rules/new")} variant="secondary">
-                        Create rule →
-                      </s-button>
-                    </s-stack>
-                  </s-stack>
-                </s-box>
-
-                <s-box padding="small" borderWidth="base" borderRadius="base">
-                  <s-stack direction="inline" gap="base" alignItems="start">
-                    <s-badge>2</s-badge>
-                    <s-stack direction="block" gap="small">
-                      <s-paragraph>
-                        <strong>Test your rule</strong>
-                      </s-paragraph>
-                      <s-paragraph>
-                        Edit a product in Shopify Admin. Tags will update automatically when the product matches your rule conditions.
-                      </s-paragraph>
-                    </s-stack>
-                  </s-stack>
-                </s-box>
-
-                <s-box padding="small" borderWidth="base" borderRadius="base">
-                  <s-stack direction="inline" gap="base" alignItems="start">
-                    <s-badge>3</s-badge>
-                    <s-stack direction="block" gap="small">
-                      <s-paragraph>
-                        <strong>Run on all products</strong>
-                      </s-paragraph>
-                      <s-paragraph>
-                        Apply your rules to your entire catalog with a bulk run.
-                      </s-paragraph>
-                      <s-button type="button" onClick={() => navigate("/app/runs")} variant="secondary">
-                        View bulk runs →
-                      </s-button>
-                    </s-stack>
-                  </s-stack>
-                </s-box>
+                <s-heading>Welcome to Auto Product Tagger</s-heading>
+                <s-paragraph>
+                  Create rules to automatically tag products based on vendor, price, and more.
+                </s-paragraph>
+                <s-paragraph>Start by creating your first rule.</s-paragraph>
+                <s-button type="button" onClick={() => navigate("/app/rules/new")} variant="primary">
+                  Create rule
+                </s-button>
               </s-stack>
-            </s-stack>
-          </s-box>
-        </s-section>
-      )}
+            </s-box>
+          </s-section>
+        )}
 
-      {/* Active Rules Snapshot */}
-      {hasRules && (
-        <s-section heading="Recent Rules" padding="base">
-          <s-box padding="base" borderWidth="base" borderRadius="base">
-            <s-stack direction="block" gap="base">
-              <s-table>
-                <s-table-header-row>
-                  <s-table-header listSlot="primary">Rule Name</s-table-header>
-                  <s-table-header>Status</s-table-header>
-                  <s-table-header>Conditions</s-table-header>
-                  <s-table-header>Tags</s-table-header>
-                  <s-table-header>Actions</s-table-header>
-                </s-table-header-row>
-                <s-table-body>
-                  {recentRules.map((rule) => (
-                    <s-table-row key={rule.id}>
-                      <s-table-cell>
-                        <s-link href={`/app/rules/${rule.id}`}>{rule.name}</s-link>
-                      </s-table-cell>
-                      <s-table-cell>
-                        <s-badge tone={rule.enabled ? "success" : "neutral"}>
-                          {rule.enabled ? "Active" : "Inactive"}
-                        </s-badge>
-                      </s-table-cell>
-                      <s-table-cell>{rule.conditionCount}</s-table-cell>
-                      <s-table-cell>{rule.tagCount}</s-table-cell>
-                      <s-table-cell>
-                        <s-button type="button" onClick={() => navigate(`/app/rules/${rule.id}`)}>
-                          Edit
-                        </s-button>
-                      </s-table-cell>
-                    </s-table-row>
-                  ))}
-                </s-table-body>
-              </s-table>
+        {/* Status Overview & Quick Actions - Side by side */}
+        <s-stack
+          direction="inline"
+          gap="base"
+          wrap
+          style={{ rowGap: "var(--s-spacing-base)" }}
+        >
+          <div style={{ flex: "1 1 360px" }}>
+            <s-section heading="Overview" padding="base">
+              <s-box padding="base" borderWidth="base" borderRadius="base">
+                <s-stack direction="block" gap="base">
+                  <s-stack direction="inline" gap="base" alignItems="center">
+                    {status.automationActive ? (
+                      <s-badge tone={statusTone(status.automationActive)}>
+                        Active
+                      </s-badge>
+                    ) : (
+                      <s-badge>Inactive</s-badge>
+                    )}
+                    <s-paragraph>
+                      <strong>Automation:</strong> {status.automationActive ? "Enabled" : "Disabled"}
+                    </s-paragraph>
+                  </s-stack>
 
-              <s-button type="button" onClick={() => navigate("/app/rules")}>
-                View all rules
-              </s-button>
-            </s-stack>
-          </s-box>
-        </s-section>
-      )}
+                  <s-stack direction="inline" gap="base" alignItems="center">
+                    <s-badge>
+                      {status.activeRuleCount} / {status.ruleLimit}
+                    </s-badge>
+                    <s-paragraph>
+                      <strong>Active rules:</strong> {status.activeRuleCount} of {status.ruleLimit} rules in use
+                    </s-paragraph>
+                  </s-stack>
+                </s-stack>
+              </s-box>
+            </s-section>
+          </div>
+
+          <div style={{ flex: "1 1 360px" }}>
+            <s-section heading="Quick actions" padding="base">
+              <s-box padding="base" borderWidth="base" borderRadius="base" background="subdued">
+                <s-stack direction="inline" gap="base" wrap>
+                  <s-button
+                    type="button"
+                    onClick={() => navigate("/app/rules/new")}
+                    variant="primary"
+                  >
+                    Create rule
+                  </s-button>
+                  <s-button
+                    type="button"
+                    onClick={() => navigate("/app/rules")}
+                    variant="secondary"
+                  >
+                    Manage rules
+                  </s-button>
+                  <s-button
+                    type="button"
+                    onClick={() => navigate("/app/runs")}
+                    variant="secondary"
+                  >
+                    View bulk runs
+                  </s-button>
+                </s-stack>
+              </s-box>
+            </s-section>
+          </div>
+        </s-stack>
+
+        {/* Active Rules Snapshot */}
+        {hasRules && (
+          <s-section heading="Recent Rules" padding="base">
+            <s-box padding="base" borderWidth="base" borderRadius="base">
+              <s-stack direction="block" gap="base">
+                <s-table>
+                  <s-table-header-row>
+                    <s-table-header listSlot="primary">Rule Name</s-table-header>
+                    <s-table-header>Status</s-table-header>
+                    <s-table-header>Conditions</s-table-header>
+                    <s-table-header>Tags</s-table-header>
+                    <s-table-header>Actions</s-table-header>
+                  </s-table-header-row>
+                  <s-table-body>
+                    {recentRules.map((rule) => (
+                      <s-table-row key={rule.id}>
+                        <s-table-cell>
+                          <s-link href={`/app/rules/${rule.id}`}>{rule.name}</s-link>
+                        </s-table-cell>
+                        <s-table-cell>
+                          <s-badge tone={rule.enabled ? "success" : "neutral"}>
+                            {rule.enabled ? "Active" : "Inactive"}
+                          </s-badge>
+                        </s-table-cell>
+                        <s-table-cell>{rule.conditionCount}</s-table-cell>
+                        <s-table-cell>{rule.tagCount}</s-table-cell>
+                        <s-table-cell>
+                          <s-button type="button" onClick={() => navigate(`/app/rules/${rule.id}`)}>
+                            Edit
+                          </s-button>
+                        </s-table-cell>
+                      </s-table-row>
+                    ))}
+                  </s-table-body>
+                </s-table>
+
+                <s-button type="button" onClick={() => navigate("/app/rules")}>
+                  View all rules
+                </s-button>
+              </s-stack>
+            </s-box>
+          </s-section>
+        )}
+      </s-stack>
     </s-page>
   );
 }

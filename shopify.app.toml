@@ -2,7 +2,7 @@
 
 client_id = "f3a95fc8a38ffaef67e412577c5dbf0e"
 name = "auto-product-tagger"
-application_url = "https://example.com"
+application_url = "https://example.com/app"
 embedded = true
 
 [build]
@@ -33,5 +33,5 @@ api_version = "2026-04"
 scopes = "read_products,write_products"
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://example.com/auth/callback" ]
 
