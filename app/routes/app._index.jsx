@@ -66,7 +66,7 @@ export default function Index() {
       {/* Status Overview & Quick Actions - Side by side */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
         {/* Status Overview Section */}
-        <s-section heading="Status overview" padding="base">
+        <s-section heading="Overview" padding="base">
           <s-box padding="base" borderWidth="base" borderRadius="base">
             <s-stack direction="block" gap="base">
               <s-stack direction="inline" gap="base" alignItems="center">
@@ -93,7 +93,7 @@ export default function Index() {
         {/* Quick Actions Section */}
         <s-section heading="Quick actions" padding="base">
           <s-box padding="base" borderWidth="base" borderRadius="base" background="subdued">
-            <s-stack direction="block" gap="base">
+            <s-stack direction="inline" gap="base" wrap>
               <s-button 
                 type="button" 
                 onClick={() => navigate("/app/rules/new")}
